@@ -1,4 +1,4 @@
-use ethereum_types::{Address, H256, H512};
+use ethereum_types::{Address, H256, H520};
 use k256::{ecdsa::SigningKey, elliptic_curve::sec1::ToEncodedPoint, PublicKey};
 use tiny_keccak::{Hasher, Keccak};
 
@@ -6,9 +6,7 @@ pub struct Account {
     // Raw private key
     pub private_key: H256,
     // Raw, uncompressed public key (containing the 0x04 lead byte)
-    pub public_key: Vec<u8>,
-    // Raw, unprefixed public key,
-    pub unprefixed_public_key: H512,
+    pub public_key: H520,
     // Ethereum address
     pub address: Address,
 }
@@ -37,8 +35,7 @@ pub fn generate_random() -> Account {
 
     Account {
         private_key: H256::from_slice(&private_key.to_bytes()),
-        public_key: public_key.to_vec(),
-        unprefixed_public_key: H512::from_slice(&public_key[1..]),
+        public_key: H520::from_slice(public_key),
         address: Address::from_slice(&addr[12..]),
     }
 }
@@ -46,14 +43,7 @@ pub fn generate_random() -> Account {
 fn main() -> eyre::Result<()> {
     let account = generate_random();
     println!("private key: 0x{}", hex::encode(account.private_key));
-    println!(
-        "public key (prefixed): 0x{}",
-        hex::encode(account.public_key)
-    );
-    println!(
-        "public key (unprefixed): 0x{}",
-        hex::encode(account.unprefixed_public_key)
-    );
+    println!("public key: 0x{}", hex::encode(account.public_key));
     println!("addr: 0x{}", hex::encode(account.address));
 
     Ok(())
