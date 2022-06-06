@@ -1,13 +1,16 @@
+use ethereum_types::{Address, H256, H512};
 use k256::{ecdsa::SigningKey, elliptic_curve::sec1::ToEncodedPoint, PublicKey};
 use tiny_keccak::{Hasher, Keccak};
 
 pub struct Account {
     // Raw private key
-    pub private_key: Vec<u8>,
+    pub private_key: H256,
     // Raw, uncompressed public key (containing the 0x04 lead byte)
     pub public_key: Vec<u8>,
+    // Raw, unprefixed public key,
+    pub unprefixed_public_key: H512,
     // Ethereum address
-    pub address: Vec<u8>,
+    pub address: Address,
 }
 
 pub fn keccak256<S>(bytes: S) -> [u8; 32]
@@ -27,22 +30,30 @@ pub fn generate_random() -> Account {
     let private_key = SigningKey::random(&mut rng);
     let public_key = PublicKey::from(&private_key.verifying_key()).to_encoded_point(false);
     let public_key = public_key.as_bytes();
-    // make sure to check the leading byte is 0x04 for the uncompressed public key
+    // make sure to check the leading byte is 0x04 for uncompressed coordinates
     debug_assert_eq!(0x04, public_key[0]);
     // then skip it for address calculation
     let addr = keccak256(&public_key[1..]);
 
     Account {
-        private_key: private_key.to_bytes().to_vec(),
+        private_key: H256::from_slice(&private_key.to_bytes()),
         public_key: public_key.to_vec(),
-        address: addr[12..].to_vec(),
+        unprefixed_public_key: H512::from_slice(&public_key[1..]),
+        address: Address::from_slice(&addr[12..]),
     }
 }
 
 fn main() -> eyre::Result<()> {
     let account = generate_random();
     println!("private key: 0x{}", hex::encode(account.private_key));
-    println!("public key: 0x{}", hex::encode(account.public_key));
+    println!(
+        "public key (prefixed): 0x{}",
+        hex::encode(account.public_key)
+    );
+    println!(
+        "public key (unprefixed): 0x{}",
+        hex::encode(account.unprefixed_public_key)
+    );
     println!("addr: 0x{}", hex::encode(account.address));
 
     Ok(())
