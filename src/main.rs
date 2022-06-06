@@ -1,12 +1,12 @@
-use ethereum_types::{Address, H256, H520};
+use ethereum_types::{Address, Public, Secret};
 use k256::{ecdsa::SigningKey, elliptic_curve::sec1::ToEncodedPoint, PublicKey};
 use tiny_keccak::{Hasher, Keccak};
 
 pub struct Account {
     // Raw private key
-    pub private_key: H256,
-    // Raw, uncompressed public key (containing the 0x04 lead byte)
-    pub public_key: H520,
+    pub private_key: Secret,
+    // Raw, public key (stripped of the 0x04 lead byte)
+    pub public_key: Public,
     // Ethereum address
     pub address: Address,
 }
@@ -34,8 +34,8 @@ pub fn generate_random() -> Account {
     let addr = keccak256(&public_key[1..]);
 
     Account {
-        private_key: H256::from_slice(&private_key.to_bytes()),
-        public_key: H520::from_slice(public_key),
+        private_key: Secret::from_slice(&private_key.to_bytes()),
+        public_key: Public::from_slice(&public_key[1..]),
         address: Address::from_slice(&addr[12..]),
     }
 }
