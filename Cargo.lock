@@ -224,19 +224,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "eth-adgen"
-version = "0.1.0"
-dependencies = [
- "clap",
- "ethereum-types",
- "eyre",
- "hex",
- "k256",
- "rand",
- "tiny-keccak",
-]
-
-[[package]]
 name = "ethbloom"
 version = "0.12.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -493,6 +480,19 @@ checksum = "9eca2c590a5f85da82668fa685c09ce2888b9430e83299debf1f34b65fd4a4ba"
 dependencies = [
  "der",
  "spki",
+]
+
+[[package]]
+name = "pocketh"
+version = "0.1.0"
+dependencies = [
+ "clap",
+ "ethereum-types",
+ "eyre",
+ "hex",
+ "k256",
+ "rand",
+ "tiny-keccak",
 ]
 
 [[package]]
