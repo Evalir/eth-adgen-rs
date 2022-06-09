@@ -1,5 +1,5 @@
 [package]
-name = "eth-adgen"
+name = "pocketh"
 version = "0.1.0"
 edition = "2021"
 
@@ -8,8 +8,8 @@ edition = "2021"
 [dependencies]
 clap = { version = "3.1.18", features = ["derive"]}
 ethereum-types = "0.13.1"
+ethers = { version = "^0.6.0", default-features = false }
 eyre = "0.6"
 hex = "0.4.3"
-k256 = "0.11.2"
 rand = "0.8.5"
 tiny-keccak = { version = "2.0.2", default-features = false, features=["keccak"] }

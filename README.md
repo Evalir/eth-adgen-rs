@@ -1,4 +1,4 @@
-# eth-adgen-rs
+# pocketh-rs
 
-Binary to generate ethereum private keys &amp; addresses quickly.
+Ethereum Swiss Knife for cutting your way into the dark forest. Inspired on [pocketh](https://github.com/ajsantander/pocketh)
 
