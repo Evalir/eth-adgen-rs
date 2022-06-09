@@ -1,41 +1,84 @@
-use ethereum_types::{Address, Public, Secret};
-use k256::{ecdsa::SigningKey, elliptic_curve::sec1::ToEncodedPoint, PublicKey};
-use tiny_keccak::{Hasher, Keccak};
+use ethers::core::types::*;
+use ethers::signers::coins_bip39::{English, Mnemonic};
 
-pub struct Account {
-    // Raw private key
-    pub private_key: Secret,
-    // Raw, public key (stripped of the 0x04 lead byte)
-    pub public_key: Public,
-    // Ethereum address
-    pub address: Address,
+mod util;
+
+pub struct Pocketh {}
+
+impl Default for Pocketh {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
-pub fn keccak256<S>(bytes: S) -> [u8; 32]
-where
-    S: AsRef<[u8]>,
-{
-    let mut output = [0u8; 32];
-    let mut hasher = Keccak::v256();
-    hasher.update(bytes.as_ref());
-    hasher.finalize(&mut output);
-    output
-}
+impl Pocketh {
+    pub fn new() -> Self {
+        Self {}
+    }
 
-pub fn generate_random() -> Account {
-    let mut rng = rand::thread_rng();
+    /// Generates a random mnemonic phrase that can then be used to generate accounts.
+    ///
+    /// ```
+    /// use pocketh::Pocketh;
+    ///
+    /// fn foo() -> eyre::Result<()> {
+    ///     let pocketh = Pocketh::new();
+    ///     let mnemonic = pocketh.generate_random_phrase();
+    ///     println!("{}", mnemonic);
+    ///     Ok(())
+    /// }
+    /// ````
+    pub fn generate_random_phrase() -> String {
+        let mut rng = rand::thread_rng();
 
-    let private_key = SigningKey::random(&mut rng);
-    let public_key = PublicKey::from(&private_key.verifying_key()).to_encoded_point(false);
-    let public_key = public_key.as_bytes();
-    // make sure to check the leading byte is 0x04 for uncompressed coordinates
-    debug_assert_eq!(0x04, public_key[0]);
-    // then skip it for address calculation
-    let addr = keccak256(&public_key[1..]);
+        let mnemonic = Mnemonic::<English>::new(&mut rng);
 
-    Account {
-        private_key: Secret::from_slice(&private_key.to_bytes()),
-        public_key: Public::from_slice(&public_key[1..]),
-        address: Address::from_slice(&addr[12..]),
+        mnemonic.to_phrase().unwrap()
+    }
+
+    /// Converts from wei, to a different denomination (gwei, ether)
+    ///
+    /// ```
+    /// use pocketh::Pocketh;
+    ///
+    /// fn foo() -> eyre::Result<()> {
+    ///     let wei = 1
+    ///     let gwei = Pocketh::from_wei(1.into(), "gwei".to_string())?; // 0.000000001
+    ///     let eth = Pocketh::from_wei(1.into(), "eth".to_string())?; // 0.000000000000000001
+    ///     println!("gwei: {}", gwei);
+    ///     println!("eth: {}", eth);
+    ///     Ok(())
+    /// }
+    /// ```
+    pub fn from_wei(value: U256, unit: String) -> eyre::Result<String> {
+        Ok(match &unit[..] {
+            "gwei" => ethers::core::utils::format_units(value, 9),
+            "eth" | "ether" => ethers::core::utils::format_units(value, 18),
+            _ => ethers::core::utils::format_units(value, 18),
+        }?)
+    }
+
+    /// Converts to wei, from a different denomination (gwei, ether)
+    ///
+    /// ```
+    /// use pocketh::Pocketh;
+    ///
+    /// fn foo() -> eyre::Result<()> {
+    ///     let wei = 1
+    ///     let gwei = Pocketh::to_wei(1.into(), "gwei".to_string())?; // 1000000000
+    ///     let eth = Pocketh::to_wei(1.into(), "eth".to_string())?; // 1000000000000000000
+    ///     println!("gwei: {}", gwei);
+    ///     println!("eth: {}", eth);
+    ///     Ok(())
+    /// }
+    /// ```
+    pub fn to_wei(value: f64, unit: String) -> eyre::Result<String> {
+        let val = value.to_string();
+        Ok(match &unit[..] {
+            "gwei" => ethers::core::utils::parse_units(val, 9),
+            "eth" | "ether" => ethers::core::utils::parse_units(val, 18),
+            _ => ethers::core::utils::parse_units(val, 18),
+        }?
+        .to_string())
     }
 }
