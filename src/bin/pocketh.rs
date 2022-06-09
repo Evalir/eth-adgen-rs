@@ -21,7 +21,7 @@ fn main() -> eyre::Result<()> {
     match &cli.command {
         Some(Commands::GenerateRandomAccount { amount }) => {
             for _ in 0..*amount {
-                let mnemonic = pocketh::generate_random_phrase();
+                let mnemonic = pocketh::Pocketh::generate_random_phrase();
                 println!("{}", mnemonic);
             }
         }
