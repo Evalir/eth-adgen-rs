@@ -1,5 +1,3 @@
-use std::str::FromStr;
-
 use ethers::core::types::*;
 use ethers::signers::coins_bip39::{English, Mnemonic};
 use ethers::utils::keccak256;
@@ -118,12 +116,19 @@ impl Pocketh {
         Ok(format!("0x{}", hex::encode(hashed_payload)))
     }
 
+    /// Converts a number to a hex string.
     pub fn uint_to_hex(value: usize) -> eyre::Result<String> {
         Ok(format!("{value:#x}"))
     }
 
+    /// Converts a hex string into a number.
     pub fn hex_to_uint(value: &str) -> eyre::Result<usize> {
         Ok(usize::from_str_radix(strip_0x(value), 16)?)
+    }
+
+    /// Converts a string into a valid hex string.
+    pub fn str_to_hex(value: &str) -> eyre::Result<String> {
+        Ok(hex::encode(value))
     }
 }
 
@@ -160,6 +165,7 @@ mod tests {
     fn test_uint_to_hex() {
         assert_eq!(Pocketh::uint_to_hex(1).unwrap(), "0x1");
         assert_eq!(Pocketh::uint_to_hex(16).unwrap(), "0x10");
+        assert_eq!(Pocketh::uint_to_hex(100).unwrap(), "0x64");
     }
 
     #[test]
@@ -169,5 +175,10 @@ mod tests {
         assert_eq!(Pocketh::hex_to_uint("0100").unwrap(), 256);
         assert_eq!(Pocketh::hex_to_uint("1000").unwrap(), 4096);
         assert_eq!(Pocketh::hex_to_uint("1000").unwrap(), 4096);
+    }
+
+    #[test]
+    pub fn test_str_to_hex() {
+        assert_eq!(Pocketh::str_to_hex("foobar").unwrap(), "666f6f626172");
     }
 }
