@@ -1,4 +1,5 @@
 use clap::{Parser, Subcommand};
+use ethers::prelude::U256;
 
 #[derive(Parser)]
 #[clap(author, version, about, long_about = None)]
@@ -12,6 +13,33 @@ enum Commands {
     GenerateRandomAccount {
         #[clap(short, long)]
         amount: usize,
+    },
+    GetSelector {
+        #[clap(short, long)]
+        signature: String,
+    },
+    GetHash {
+        #[clap(short, long)]
+        payload: String,
+    },
+    FromWei {
+        #[clap(short, long)]
+        value: U256,
+        unit: String,
+    },
+    ToWei {
+        #[clap(short, long)]
+        value: f64,
+        unit: String,
+    },
+    UintToHex {
+        value: usize,
+    },
+    HexToUint {
+        value: String,
+    },
+    StringToHex {
+        value: String,
     },
 }
 
