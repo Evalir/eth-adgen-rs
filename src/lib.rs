@@ -1,6 +1,8 @@
 use ethers::core::types::*;
 use ethers::signers::coins_bip39::{English, Mnemonic};
 use ethers::utils::keccak256;
+use rayon::prelude::*;
+use std::sync::mpsc;
 
 mod util;
 
@@ -129,6 +131,53 @@ impl Pocketh {
     /// Converts a string into a valid hex string.
     pub fn str_to_hex(value: &str) -> eyre::Result<String> {
         Ok(hex::encode(value))
+    }
+
+    /// Brute-force finds a matching selector from the one provided
+    pub fn get_matching_selector(
+        selector: &str,
+        args: &str,
+        prefix: &str,
+        rnd_len: usize,
+    ) -> eyre::Result<String> {
+        let alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".as_bytes();
+        let selector = Pocketh::get_selector(selector).expect("Invalid selector");
+
+        let possible_chars = alphabet.len();
+        let possible_perms = possible_chars.pow(rnd_len.try_into().unwrap());
+
+        let (tx, rx) = mpsc::sync_channel(1000);
+
+        (0..possible_perms).into_par_iter().find_any(|&p| {
+            let mut rand_string: Vec<u8> = Vec::with_capacity(rnd_len);
+
+            let mut i = 0;
+            while i < rnd_len {
+                let idx = p / possible_chars.pow(i.try_into().unwrap()) % possible_chars;
+                rand_string.push(alphabet[idx]);
+                i += 1;
+            }
+
+            let random_sig = format!(
+                "{}{}({})",
+                prefix,
+                std::str::from_utf8(&rand_string).unwrap(),
+                args
+            );
+
+            let rand_selector = Pocketh::get_selector(&random_sig).unwrap();
+
+            if rand_selector == selector {
+                println!("match {} and {}", rand_selector, selector);
+                tx.send(random_sig).unwrap();
+                return true;
+            }
+            false
+        });
+
+        let random_sig = rx.recv().expect("No selector found");
+
+        Ok(random_sig)
     }
 }
 
