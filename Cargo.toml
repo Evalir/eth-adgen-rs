@@ -12,4 +12,5 @@ ethers = { version = "^0.6.0", default-features = false }
 eyre = "0.6"
 hex = "0.4.3"
 rand = "0.8.5"
+rayon = "1.5.3"
 tiny-keccak = { version = "2.0.2", default-features = false, features=["keccak"] }
