@@ -14,33 +14,24 @@ enum Commands {
         #[clap(short, long)]
         amount: usize,
     },
-    //GetSelector {
-    //#[clap(short, long)]
-    //signature: String,
-    //},
-    //GetHash {
-    //#[clap(short, long)]
-    //payload: String,
-    //},
-    //FromWei {
-    //#[clap(short, long)]
-    //value: U256,
-    //unit: String,
-    //},
-    //ToWei {
-    //#[clap(short, long)]
-    //value: f64,
-    //unit: String,
-    //},
-    //UintToHex {
-    //value: usize,
-    //},
-    //HexToUint {
-    //value: String,
-    //},
-    //StringToHex {
-    //value: String,
-    //},
+    GetSelector {
+        #[clap(short, long)]
+        signature: String,
+    },
+    GetHash {
+        #[clap(short, long)]
+        payload: String,
+    },
+    FromWei {
+        #[clap(short, long)]
+        value: U256,
+        unit: String,
+    },
+    ToWei {
+        #[clap(short, long)]
+        value: f64,
+        unit: String,
+    },
     GetMatchingSelector {
         #[clap(short, long)]
         selector: String,
@@ -50,6 +41,18 @@ enum Commands {
         prefix: String,
         #[clap(short, long, default_value = "6")]
         rnd_len: usize,
+    },
+    UintToHex {
+        #[clap(short, long)]
+        value: usize,
+    },
+    HexToUint {
+        #[clap(short, long)]
+        value: String,
+    },
+    StringToHex {
+        #[clap(short, long)]
+        value: String,
     },
 }
 
@@ -73,6 +76,27 @@ fn main() -> eyre::Result<()> {
                 "{}",
                 pocketh::Pocketh::get_matching_selector(selector, args, prefix, *rnd_len).unwrap()
             );
+        }
+        Some(Commands::GetHash { payload }) => {
+            println!("{}", pocketh::Pocketh::get_hash(&payload)?);
+        }
+        Some(Commands::FromWei { value, unit }) => {
+            println!("{}", pocketh::Pocketh::from_wei(*value, unit.to_string())?);
+        }
+        Some(Commands::ToWei { value, unit }) => {
+            println!("{}", pocketh::Pocketh::to_wei(*value, unit.to_string())?);
+        }
+        Some(Commands::UintToHex { value }) => {
+            println!("{}", pocketh::Pocketh::uint_to_hex(*value)?);
+        }
+        Some(Commands::HexToUint { value }) => {
+            println!("{}", pocketh::Pocketh::hex_to_uint(value)?);
+        }
+        Some(Commands::StringToHex { value }) => {
+            println!("{}", pocketh::Pocketh::hex_to_uint(value)?);
+        }
+        Some(Commands::GetSelector { signature }) => {
+            println!("{}", pocketh::Pocketh::get_selector(signature)?);
         }
         None => {}
     }
