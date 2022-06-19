@@ -20,7 +20,8 @@ impl Pocketh {
     /// use pocketh::Pocketh;
     ///
     /// fn foo() -> eyre::Result<()> {
-    ///     let mnemonic = Pocketh::generate_random_phrase();
+    ///     let pocketh = Pocketh::new();
+    ///     let mnemonic = pocketh.generate_random_phrase();
     ///     println!("{}", mnemonic);
     ///     Ok(())
     /// }
@@ -39,9 +40,10 @@ impl Pocketh {
     /// use pocketh::Pocketh;
     ///
     /// fn foo() -> eyre::Result<()> {
+    ///     let pocketh = Pocketh::new();
     ///     let wei = 1;
-    ///     let gwei = Pocketh::from_wei(1.into(), "gwei".to_string())?; // 0.000000001
-    ///     let eth = Pocketh::from_wei(1.into(), "eth".to_string())?; // 0.000000000000000001
+    ///     let gwei = pocketh.from_wei(1.into(), "gwei".to_string())?; // 0.000000001
+    ///     let eth = pocketh.from_wei(1.into(), "eth".to_string())?; // 0.000000000000000001
     ///     println!("gwei: {}", gwei);
     ///     println!("eth: {}", eth);
     ///     Ok(())
@@ -61,9 +63,10 @@ impl Pocketh {
     /// use pocketh::Pocketh;
     ///
     /// fn foo() -> eyre::Result<()> {
+    ///     let pocketh = Pocketh::new();
     ///     let wei = 1;
-    ///     let gwei = Pocketh::to_wei(1.into(), "gwei".to_string())?; // 1000000000
-    ///     let eth = Pocketh::to_wei(1.into(), "eth".to_string())?; // 1000000000000000000
+    ///     let gwei = pocketh.to_wei(1.into(), "gwei".to_string())?; // 1000000000
+    ///     let eth = pocketh.to_wei(1.into(), "eth".to_string())?; // 1000000000000000000
     ///     println!("gwei: {}", gwei);
     ///     println!("eth: {}", eth);
     ///     Ok(())
@@ -85,8 +88,9 @@ impl Pocketh {
     /// use pocketh::Pocketh;
     ///
     /// fn foo() -> eyre::Result<()> {
+    ///     let pocketh = Pocketh::new();
     ///     let fn_sig = "createAndOpen(address,address)";
-    ///     let selector = Pocketh::get_selector(fn_sig)?;
+    ///     let selector = pocketh.get_selector(fn_sig)?;
     ///
     ///     println!("{}", selector);
     ///
@@ -104,8 +108,9 @@ impl Pocketh {
     /// use pocketh::Pocketh;
     ///
     /// fn foo() -> eyre::Result<()> {
+    ///     let pocketh = Pocketh::new();
     ///     let payload = "vitalik_masternode";
-    ///     let hashed_payload = Pocketh::get_hash(payload)?;
+    ///     let hashed_payload = pocketh.get_hash(payload)?;
     ///
     ///     println!("{}", hashed_payload);
     ///
