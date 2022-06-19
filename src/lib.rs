@@ -25,7 +25,7 @@ impl Pocketh {
     ///     Ok(())
     /// }
     /// ````
-    pub fn generate_random_phrase() -> String {
+    pub fn generate_random_phrase(&self) -> String {
         let mut rng = rand::thread_rng();
 
         let mnemonic = Mnemonic::<English>::new(&mut rng);
@@ -47,7 +47,7 @@ impl Pocketh {
     ///     Ok(())
     /// }
     /// ```
-    pub fn from_wei(value: U256, unit: String) -> eyre::Result<String> {
+    pub fn from_wei(&self, value: U256, unit: String) -> eyre::Result<String> {
         Ok(match &unit[..] {
             "gwei" => ethers::core::utils::format_units(value, 9),
             "eth" | "ether" => ethers::core::utils::format_units(value, 18),
@@ -69,7 +69,7 @@ impl Pocketh {
     ///     Ok(())
     /// }
     /// ```
-    pub fn to_wei(value: f64, unit: String) -> eyre::Result<String> {
+    pub fn to_wei(&self, value: f64, unit: String) -> eyre::Result<String> {
         let val = value.to_string();
         Ok(match &unit[..] {
             "gwei" => ethers::core::utils::parse_units(val, 9),
@@ -92,7 +92,7 @@ impl Pocketh {
     ///
     ///     Ok(())
     /// }
-    pub fn get_selector(sig: &str) -> eyre::Result<String> {
+    pub fn get_selector(&self, sig: &str) -> eyre::Result<String> {
         let hashed_sig = keccak256(sig).to_vec();
 
         Ok(format!("0x{}", hex::encode(&hashed_sig[..4])))
@@ -112,36 +112,37 @@ impl Pocketh {
     ///     Ok(())
     /// }
     /// ```
-    pub fn get_hash(payload: &str) -> eyre::Result<String> {
+    pub fn get_hash(&self, payload: &str) -> eyre::Result<String> {
         let hashed_payload = keccak256(payload).to_vec();
 
         Ok(format!("0x{}", hex::encode(hashed_payload)))
     }
 
     /// Converts a number to a hex string.
-    pub fn uint_to_hex(value: usize) -> eyre::Result<String> {
+    pub fn uint_to_hex(&self, value: usize) -> eyre::Result<String> {
         Ok(format!("{value:#x}"))
     }
 
     /// Converts a hex string into a number.
-    pub fn hex_to_uint(value: &str) -> eyre::Result<usize> {
+    pub fn hex_to_uint(&self, value: &str) -> eyre::Result<usize> {
         Ok(usize::from_str_radix(strip_0x(value), 16)?)
     }
 
     /// Converts a string into a valid hex string.
-    pub fn str_to_hex(value: &str) -> eyre::Result<String> {
+    pub fn str_to_hex(&self, value: &str) -> eyre::Result<String> {
         Ok(hex::encode(value))
     }
 
     /// Brute-force finds a matching selector from the one provided
     pub fn get_matching_selector(
+        &self,
         selector: &str,
         args: &str,
         prefix: &str,
         rnd_len: usize,
     ) -> eyre::Result<String> {
         let alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".as_bytes();
-        let selector = Pocketh::get_selector(selector).expect("Invalid selector");
+        let selector = self.get_selector(selector).expect("Invalid selector");
 
         let possible_chars = alphabet.len();
         let possible_perms = possible_chars.pow(rnd_len.try_into().unwrap());
@@ -165,7 +166,7 @@ impl Pocketh {
                 args
             );
 
-            let rand_selector = Pocketh::get_selector(&random_sig).unwrap();
+            let rand_selector = self.get_selector(&random_sig).unwrap();
 
             if rand_selector == selector {
                 println!("match {} and {}", rand_selector, selector);
@@ -191,43 +192,50 @@ mod tests {
 
     #[test]
     fn test_selector() {
+        let pocketh = Pocketh::new();
         assert_eq!(
-            Pocketh::get_selector("createAndOpen(address,address)").unwrap(),
+            pocketh
+                .get_selector("createAndOpen(address,address)")
+                .unwrap(),
             "0x581f3c50"
         )
     }
 
     #[test]
     fn test_hash() {
+        let pocketh = Pocketh::new();
         assert_eq!(
-            Pocketh::get_hash("").unwrap(),
+            pocketh.get_hash("").unwrap(),
             // base keccak256 response
             "0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470"
         );
         assert_eq!(
-            Pocketh::get_hash("cafeconleche").unwrap(),
+            pocketh.get_hash("cafeconleche").unwrap(),
             "0x1f19fbea2f63e76368ec292dc853b4c51ada1012666af5435995e15e7f564d2d"
         );
     }
 
     #[test]
     fn test_uint_to_hex() {
-        assert_eq!(Pocketh::uint_to_hex(1).unwrap(), "0x1");
-        assert_eq!(Pocketh::uint_to_hex(16).unwrap(), "0x10");
-        assert_eq!(Pocketh::uint_to_hex(100).unwrap(), "0x64");
+        let pocketh = Pocketh::new();
+        assert_eq!(pocketh.uint_to_hex(1).unwrap(), "0x1");
+        assert_eq!(pocketh.uint_to_hex(16).unwrap(), "0x10");
+        assert_eq!(pocketh.uint_to_hex(100).unwrap(), "0x64");
     }
 
     #[test]
     fn test_hex_to_uint() {
-        assert_eq!(Pocketh::hex_to_uint("01").unwrap(), 1);
-        assert_eq!(Pocketh::hex_to_uint("10").unwrap(), 16);
-        assert_eq!(Pocketh::hex_to_uint("0100").unwrap(), 256);
-        assert_eq!(Pocketh::hex_to_uint("1000").unwrap(), 4096);
-        assert_eq!(Pocketh::hex_to_uint("1000").unwrap(), 4096);
+        let pocketh = Pocketh::new();
+        assert_eq!(pocketh.hex_to_uint("01").unwrap(), 1);
+        assert_eq!(pocketh.hex_to_uint("10").unwrap(), 16);
+        assert_eq!(pocketh.hex_to_uint("0100").unwrap(), 256);
+        assert_eq!(pocketh.hex_to_uint("1000").unwrap(), 4096);
+        assert_eq!(pocketh.hex_to_uint("1000").unwrap(), 4096);
     }
 
     #[test]
     pub fn test_str_to_hex() {
-        assert_eq!(Pocketh::str_to_hex("foobar").unwrap(), "666f6f626172");
+        let pocketh = Pocketh::new();
+        assert_eq!(pocketh.str_to_hex("foobar").unwrap(), "666f6f626172");
     }
 }

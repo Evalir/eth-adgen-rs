@@ -58,11 +58,12 @@ enum Commands {
 
 fn main() -> eyre::Result<()> {
     let cli = Cli::parse();
+    let pocketh = pocketh::Pocketh::new();
 
     match &cli.command {
         Some(Commands::GenerateRandomAccount { amount }) => {
             for _ in 0..*amount {
-                let mnemonic = pocketh::Pocketh::generate_random_phrase();
+                let mnemonic = pocketh.generate_random_phrase();
                 println!("{}", mnemonic);
             }
         }
@@ -74,29 +75,31 @@ fn main() -> eyre::Result<()> {
         }) => {
             println!(
                 "{}",
-                pocketh::Pocketh::get_matching_selector(selector, args, prefix, *rnd_len).unwrap()
+                pocketh
+                    .get_matching_selector(selector, args, prefix, *rnd_len)
+                    .unwrap()
             );
         }
         Some(Commands::GetHash { payload }) => {
-            println!("{}", pocketh::Pocketh::get_hash(&payload)?);
+            println!("{}", pocketh.get_hash(&payload)?);
         }
         Some(Commands::FromWei { value, unit }) => {
-            println!("{}", pocketh::Pocketh::from_wei(*value, unit.to_string())?);
+            println!("{}", pocketh.from_wei(*value, unit.to_string())?);
         }
         Some(Commands::ToWei { value, unit }) => {
-            println!("{}", pocketh::Pocketh::to_wei(*value, unit.to_string())?);
+            println!("{}", pocketh.to_wei(*value, unit.to_string())?);
         }
         Some(Commands::UintToHex { value }) => {
-            println!("{}", pocketh::Pocketh::uint_to_hex(*value)?);
+            println!("{}", pocketh.uint_to_hex(*value)?);
         }
         Some(Commands::HexToUint { value }) => {
-            println!("{}", pocketh::Pocketh::hex_to_uint(value)?);
+            println!("{}", pocketh.hex_to_uint(value)?);
         }
         Some(Commands::StringToHex { value }) => {
-            println!("{}", pocketh::Pocketh::hex_to_uint(value)?);
+            println!("{}", pocketh.hex_to_uint(value)?);
         }
         Some(Commands::GetSelector { signature }) => {
-            println!("{}", pocketh::Pocketh::get_selector(signature)?);
+            println!("{}", pocketh.get_selector(signature)?);
         }
         None => {}
     }
