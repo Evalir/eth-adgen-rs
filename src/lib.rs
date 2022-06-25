@@ -242,6 +242,6 @@ mod tests {
     #[test]
     pub fn test_str_to_hex() {
         let pocketh = Pocketh::new();
-        assert_eq!(pocketh.str_to_hex("foobar").unwrap(), "666f6f626172");
+        assert_eq!(pocketh.str_to_hex("foobar").unwrap(), "0x666f6f626172");
     }
 }
