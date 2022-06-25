@@ -96,7 +96,7 @@ fn main() -> eyre::Result<()> {
             println!("{}", pocketh.hex_to_uint(value)?);
         }
         Some(Commands::StringToHex { value }) => {
-            println!("{}", pocketh.hex_to_uint(value)?);
+            println!("{}", pocketh.str_to_hex(value)?);
         }
         Some(Commands::GetSelector { signature }) => {
             println!("{}", pocketh.get_selector(signature)?);

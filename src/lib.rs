@@ -135,7 +135,8 @@ impl Pocketh {
 
     /// Converts a string into a valid hex string.
     pub fn str_to_hex(&self, value: &str) -> eyre::Result<String> {
-        Ok(hex::encode(value))
+        println!("{}", value);
+        Ok(format!("0x{}", hex::encode(value)))
     }
 
     /// Brute-force finds a matching selector from the one provided
