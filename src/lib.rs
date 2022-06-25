@@ -135,7 +135,7 @@ impl Pocketh {
 
     /// Converts a string into a valid hex string.
     pub fn str_to_hex(&self, value: &str) -> eyre::Result<String> {
-        Ok(hex::encode(value))
+        Ok(format!("0x{}", hex::encode(value)))
     }
 
     /// Brute-force finds a matching selector from the one provided
@@ -241,6 +241,6 @@ mod tests {
     #[test]
     pub fn test_str_to_hex() {
         let pocketh = Pocketh::new();
-        assert_eq!(pocketh.str_to_hex("foobar").unwrap(), "666f6f626172");
+        assert_eq!(pocketh.str_to_hex("foobar").unwrap(), "0x666f6f626172");
     }
 }
